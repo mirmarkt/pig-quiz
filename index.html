@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试你是什么样的群友</title>
+<style>
+:root {
+  --bg: #fafafa; --fg: #1a1a1a; --card: #ffffff; --border: #e0e0e0;
+  --accent: #7c3aed; --accent2: #ec4899; --muted: #6b7280;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --good: #10b981; --warn: #f59e0b; --bad: #ef4444;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f10; --fg: #e5e5e5; --card: #1a1a1c; --border: #2a2a2c;
+    --accent: #a78bfa; --accent2: #f472b6; --muted: #9ca3af;
+    --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  }
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+               "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--fg);
+  min-height: 100vh; line-height: 1.6;
+  background-image:
+    radial-gradient(at 20% 10%, rgba(124,58,237,0.08) 0%, transparent 50%),
+    radial-gradient(at 80% 90%, rgba(236,72,153,0.08) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+.container { max-width: 720px; margin: 0 auto; padding: 24px 20px 80px; }
+header { text-align: center; padding: 32px 0 24px; }
+header h1 {
+  font-size: 28px; font-weight: 700; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+header .subtitle { color: var(--muted); font-size: 14px; }
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 16px; padding: 32px 28px; box-shadow: var(--shadow);
+  margin-bottom: 20px;
+}
+.card h2 { font-size: 20px; margin-bottom: 12px; }
+.card p { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+.card ul { padding-left: 20px; color: var(--muted); font-size: 14px; }
+.card ul li { margin-bottom: 6px; }
+.btn {
+  display: inline-block; padding: 12px 28px; border-radius: 999px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  border: none; transition: all 0.2s ease;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(124,58,237,0.4); }
+.btn:active { transform: translateY(0); }
+.btn-secondary {
+  background: transparent; color: var(--fg);
+  border: 1px solid var(--border); box-shadow: none;
+}
+.btn-secondary:hover { background: var(--card); border-color: var(--accent); }
+.progress-bar {
+  width: 100%; height: 6px; background: var(--border);
+  border-radius: 3px; overflow: hidden; margin-bottom: 24px;
+}
+.progress-fill {
+  height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width 0.3s ease;
+}
+.progress-text { font-size: 12px; color: var(--muted); margin-bottom: 8px; text-align: right; }
+.section-tag {
+  display: inline-block; padding: 4px 12px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(236,72,153,0.15));
+  color: var(--accent); margin-bottom: 16px;
+}
+.question-text {
+  font-size: 17px; line-height: 1.7; margin-bottom: 24px;
+  color: var(--fg);
+}
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 18px; border: 1.5px solid var(--border);
+  border-radius: 12px; cursor: pointer; transition: all 0.15s ease;
+  background: var(--card); text-align: left;
+  color: var(--fg); font: inherit; width: 100%;
+}
+.option:hover { border-color: var(--accent); background: rgba(124,58,237,0.04); }
+.option.selected { border-color: var(--accent); background: rgba(124,58,237,0.08); }
+.option .opt-label {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--border); display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.option.selected .opt-label {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+.option .opt-text { flex: 1; font-size: 15px; line-height: 1.5; }
+.nav-buttons { display: flex; justify-content: space-between; margin-top: 28px; gap: 12px; }
+.scale-options { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 8px; }
+.scale-options .option { padding: 10px 6px; text-align: center; flex-direction: column; }
+.scale-options .opt-label { margin: 0 auto 4px; width: 24px; height: 24px; font-size: 11px; }
+.scale-options .opt-text { font-size: 12px; }
+.scale-anchors { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; padding: 0 4px; }
+.result-section { margin-bottom: 28px; }
+.result-section h3 {
+  font-size: 16px; font-weight: 700; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+}
+.dim-bar { margin-bottom: 14px; }
+.dim-bar .dim-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+.dim-bar .dim-track {
+  display: flex; height: 24px; border-radius: 6px; overflow: hidden;
+  background: var(--border); position: relative;
+}
+.dim-bar .dim-left, .dim-bar .dim-right { flex: 1; display: flex; align-items: center; padding: 0 10px; font-size: 11px; font-weight: 600; }
+.dim-bar .dim-left { background: linear-gradient(90deg, var(--accent), rgba(124,58,237,0.5)); color: white; }
+.dim-bar .dim-right { background: linear-gradient(90deg, rgba(236,72,153,0.5), var(--accent2)); color: white; justify-content: flex-end; }
+.dim-bar .dim-marker {
+  position: absolute; top: -4px; bottom: -4px; width: 4px; background: var(--fg);
+  box-shadow: 0 0 0 2px var(--card); transition: left 0.5s ease;
+}
+.share-card {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white; border-radius: 16px; padding: 28px; text-align: center;
+  margin-bottom: 20px;
+}
+.share-card .big-type { font-size: 48px; font-weight: 800; letter-spacing: 4px; margin: 12px 0; }
+.share-card .kinsey { font-size: 14px; opacity: 0.95; }
+.action-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.disclaimer { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.error-msg { color: var(--bad); font-size: 13px; margin-top: 8px; }
+.footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 40px; }
+@media (max-width: 480px) {
+  header h1 { font-size: 22px; }
+  .card { padding: 24px 18px; }
+  .question-text { font-size: 15px; }
+  .scale-options { grid-template-columns: repeat(5, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <h1>🐷 测试你是什么样的群友</h1>
+  <p class="subtitle">105 题互动版 · 全本地 · 灵魂动物园出品的群友图鉴</p>
+</header>
+<div id="app"></div>
+<div class="footer">
+  纯前端运行 · 不上传任何数据 · 关闭页面即销毁所有记录
+</div>
+</div>
+<script>
+// ==================== 题库 ====================
+// 每题: {sec, dim, pole, a, b, type}
+// sec: 'mbti' | 'kinsey' | 'role' | 'rel'
+// type: 'binary' (二选一) | 'scale' (1-7 量表，sec='kinsey' 用)
+const QUESTIONS = [
+
+// ──────── MBTI: E/I (15 题) ────────
+{sec:'mbti', dim:'ei', pole:+1, a:'和一群朋友聚会后，你通常感到精力充沛、想继续社交',
+                  b:'聚会后你需要独处来"充电"，恢复自己的能量'},
+{sec:'mbti', dim:'ei', pole:-1, a:'你倾向于先思考再开口',
+                  b:'你倾向于边说边想，通过说出来整理思路'},
+{sec:'mbti', dim:'ei', pole:+1, a:'在群体中，你自然而然会成为那个引导讨论或活跃气氛的人',
+                  b:'你更愿意在边上观察，等真有想法了再发言'},
+{sec:'mbti', dim:'ei', pole:-1, a:'你更喜欢一对一的深度对话',
+                  b:'你更喜欢和很多人一起聊，每个话题浅一点没关系'},
+{sec:'mbti', dim:'ei', pole:+1, a:'空闲时间你更可能出门、见人、参加活动',
+                  b:'空闲时间你更可能在家看书、追剧、玩自己的项目'},
+{sec:'mbti', dim:'ei', pole:-1, a:'别人觉得你"安静"或"内敛"是常事',
+                  b:'别人觉得你"话多"或"外向"是常事'},
+{sec:'mbti', dim:'ei', pole:+1, a:'新环境里你倾向于主动认识人',
+                  b:'新环境里你倾向于等别人来找你'},
+{sec:'mbti', dim:'ei', pole:-1, a:'电话响了你倾向于不接，等会儿回过去',
+                  b:'电话响了你倾向于立刻接，不喜欢错过'},
+{sec:'mbti', dim:'ei', pole:+1, a:'你说话时常用手势、表情、肢体动作',
+                  b:'你说话时更静态，思考时甚至会静止不动'},
+{sec:'mbti', dim:'ei', pole:-1, a:'比起被很多人知道，你更希望被少数人深刻了解',
+                  b:'比起被少数人了解，你更喜欢被广泛认识'},
+{sec:'mbti', dim:'ei', pole:+1, a:'连续几天的独处会让你觉得有点闷或失落',
+                  b:'连续几天的独处是你最舒服的状态'},
+{sec:'mbti', dim:'ei', pole:-1, a:'你的朋友圈子不大，但每个朋友都挺熟',
+                  b:'你的朋友圈子很广，认识很多人但不一定都深交'},
+{sec:'mbti', dim:'ei', pole:+1, a:'你在团队讨论里倾向于先发言带动节奏',
+                  b:'你在团队讨论里倾向于后发言总结观点'},
+{sec:'mbti', dim:'ei', pole:-1, a:'写作/打字比当面说话更让你舒服',
+                  b:'当面说话比打字更让你舒服'},
+{sec:'mbti', dim:'ei', pole:+1, a:'你常被人说"想到什么就说什么"',
+                  b:'你常被人说"想得很深但不太说出来"'},
+
+// ──────── MBTI: S/N (15 题) ────────
+{sec:'mbti', dim:'sn', pole:+1, a:'比起理论，你更相信"看得见摸得着"的事实',
+                  b:'比起"现在能用的"，你更被"未来可能实现的"吸引'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你常思考事物之间的联系和模式',
+                  b:'你更关注具体的事实和细节'},
+{sec:'mbti', dim:'sn', pole:+1, a:'比起"5 年后的愿景"，你更想"这周先把这一步做好"',
+                  b:'比起"这周的具体步骤"，你更想"5 年后这事会变成什么样"'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你喜欢探索新概念、新理论、新可能性',
+                  b:'你喜欢用已经验证过的方法做事'},
+{sec:'mbti', dim:'sn', pole:+1, a:'你相信经验是最靠谱的老师',
+                  b:'你相信直觉和灵感同样重要'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你常被人说"想得太远"或"想得太抽象"',
+                  b:'你常被人说"很实际"或"脚踏实地"'},
+{sec:'mbti', dim:'sn', pole:+1, a:'描述事物时你倾向于讲具体细节',
+                  b:'描述事物时你倾向于讲整体感觉和大方向'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你常思考"如果...会怎样"的假设场景',
+                  b:'你更关注"现在是什么"和"接下来要做什么"'},
+{sec:'mbti', dim:'sn', pole:+1, a:'你喜欢可量化、可测量的东西',
+                  b:'你更看重质感和方向感，不一定都要量化'},
+{sec:'mbti', dim:'sn', pole:-1, a:'相比维护现状，你更喜欢打破它、创造新东西',
+                  b:'相比推倒重来，你更想持续优化现有的'},
+{sec:'mbti', dim:'sn', pole:+1, a:'你做事前会先收集事实和数据',
+                  b:'你做事前会先有个大方向感，再边做边调整'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你常被"如果世界不是这样会怎样"这种问题吸引',
+                  b:'你常被"为什么世界是这样"这种问题吸引'},
+{sec:'mbti', dim:'sn', pole:+1, a:'你说话具体，别人听完能立刻知道你要干什么',
+                  b:'你说话抽象，别人听完要先理解你的意思'},
+{sec:'mbti', dim:'sn', pole:-1, a:'你经常有"灵感一闪"的时刻',
+                  b:'你的想法通常来自长期的积累和思考'},
+{sec:'mbti', dim:'sn', pole:+1, a:'你更喜欢用别人已经验证过的方案',
+                  b:'你更喜欢自己摸索出一个新方案'},
+
+// ──────── MBTI: T/F (15 题) ────────
+{sec:'mbti', dim:'tf', pole:+1, a:'做决定时你更看重逻辑和客观利弊',
+                  b:'做决定时你更看重对人际关系和情感的影响'},
+{sec:'mbti', dim:'tf', pole:-1, a:'你常被人说"很理性"或"冷静"',
+                  b:'你常被人说"很感性"或"心软"'},
+{sec:'mbti', dim:'tf', pole:+1, a:'别人找你诉苦，你倾向于帮他们分析问题',
+                  b:'别人找你诉苦，你倾向于先陪他们、认同他们的感受'},
+{sec:'mbti', dim:'tf', pole:-1, a:'你追求"公平"多过"和谐"',
+                  b:'你追求"和谐"多过"公平"'},
+{sec:'mbti', dim:'tf', pole:+1, a:'批评别人时你会直说，不绕弯子',
+                  b:'批评别人时你会注意措辞，先肯定再说问题'},
+{sec:'mbti', dim:'tf', pole:-1, a:'你的决定常受"这件事对谁好/不好"影响',
+                  b:'你的决定常受"这件事是否合理"影响'},
+{sec:'mbti', dim:'tf', pole:+1, a:'你相信"对事不对人"',
+                  b:'你相信"人对了，事才能对"'},
+{sec:'mbti', dim:'tf', pole:-1, a:'你常被别人的情绪所影响',
+                  b:'你常能在情绪激动时保持理性'},
+{sec:'mbti', dim:'tf', pole:+1, a:'你欣赏"就事论事、就理论理"的人',
+                  b:'你欣赏"温柔、体贴、照顾他人感受"的人'},
+{sec:'mbti', dim:'tf', pole:-1, a:'看电影时你容易跟着角色哭/笑',
+                  b:'看电影时你更多是观察剧情、思考寓意'},
+{sec:'mbti', dim:'tf', pole:+1, a:'吵架时你更想"赢"（证明自己有理）',
+                  b:'吵架时你更想"和好"（关系不破裂）'},
+{sec:'mbti', dim:'tf', pole:-1, a:'你重视"被理解"和"被接纳"',
+                  b:'你重视"被尊重"和"被认可"'},
+{sec:'mbti', dim:'tf', pole:+1, a:'你更欣赏"独立、有主见"的人',
+                  b:'你更欣赏"温柔、善解人意"的人'},
+{sec:'mbti', dim:'tf', pole:-1, a:'做错事时你第一反应是内疚',
+                  b:'做错事时你第一反应是分析哪里出了问题'},
+{sec:'mbti', dim:'tf', pole:+1, a:'你相信"真理越辩越明"',
+                  b:'你相信"给人留面子"比"争个对错"重要'},
+
+// ──────── MBTI: J/P (15 题) ────────
+{sec:'mbti', dim:'jp', pole:+1, a:'出门前你一定会列清单/做计划',
+                  b:'出门前你倾向于随机应变'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你更喜欢"留有余地"再决定',
+                  b:'你更喜欢"先定下来"再说'},
+{sec:'mbti', dim:'jp', pole:+1, a:'你做事前喜欢把所有信息都搞清楚再行动',
+                  b:'你做事前倾向于边做边学，行动第一'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你的桌面/房间常常有点乱，但你知道东西在哪',
+                  b:'你的桌面/房间井井有条，每样东西都有固定位置'},
+{sec:'mbti', dim:'jp', pole:+1, a:'deadline 提前一周你就开始紧张',
+                  b:'deadline 最后一晚你才通宵'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你常被朋友说"你怎么还不做决定"',
+                  b:'你常被朋友说"你想太多了"'},
+{sec:'mbti', dim:'jp', pole:+1, a:'你旅行前会做详细攻略',
+                  b:'你旅行前只想大方向，到了再探索'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你常因为"还有别的可能"而推迟决定',
+                  b:'你常因为"不决定更难受"而快速拍板'},
+{sec:'mbti', dim:'jp', pole:+1, a:'你喜欢日历上排满事情的充实感',
+                  b:'你喜欢日历上留白、不被安排的自由感'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你常开好几个项目/兴趣，同时进行',
+                  b:'你倾向于一次专注一件事，做完再做下一件'},
+{sec:'mbti', dim:'jp', pole:+1, a:'计划被打乱时你会烦躁',
+                  b:'计划被打乱时你觉得"反正有得玩"'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你常被"灵感/兴趣"驱动做事',
+                  b:'你常被"任务/责任"驱动做事'},
+{sec:'mbti', dim:'jp', pole:+1, a:'你买东西前会做功课、查评测',
+                  b:'你买东西常凭感觉或冲动'},
+{sec:'mbti', dim:'jp', pole:-1, a:'你享受"边做边调整"的过程',
+                  b:'你享受"按计划完成"的感觉'},
+{sec:'mbti', dim:'jp', pole:+1, a:'做决定时你更想要"确定感"',
+                  b:'做决定时你更想要"自由度"'},
+
+// ──────── Kinsey 量表 (20 题) ────────
+// 0=完全异性恋, 6=完全同性恋
+// 用 1-7 量表回答：1=完全不同意 4=中性 7=完全同意
+// 题干+两端描述，避免直接问
+{sec:'kinsey', type:'scale',
+ a:'我对异性的浪漫吸引力/情感连接明显比对同性更深、更频繁', b:'我对同性的浪漫吸引力/情感连接明显比对异性更深、更频繁'},
+
+{sec:'kinsey', type:'scale',
+ a:'在异性面前我更可能产生"怦然心动"的感觉', b:'在同性面前我更可能产生"怦然心动"的感觉'},
+
+{sec:'kinsey', type:'scale',
+ a:'我幻想的对象历史上绝大多数是异性', b:'我幻想的对象历史上绝大多数是同性'},
+
+{sec:'kinsey', type:'scale',
+ a:'我对异性的身体吸引力感受更强烈', b:'我对同性的身体吸引力感受更强烈'},
+
+{sec:'kinsey', type:'scale',
+ a:'我和异性约会时通常更自在、更投入', b:'我和同性约会时通常更自在、更投入'},
+
+{sec:'kinsey', type:'scale',
+ a:'我的"理想对象"想象中更偏异性化', b:'我的"理想对象"想象中更偏同性化'},
+
+{sec:'kinsey', type:'scale',
+ a:'我看影视/小说时，异性恋情节更能打动我', b:'我看影视/小说时，同性恋情节更能打动我'},
+
+{sec:'kinsey', type:'scale',
+ a:'在过去的浪漫经历/约会中，异性对象占绝大多数', b:'在过去的浪漫经历/约会中，同性对象占绝大多数'},
+
+{sec:'kinsey', type:'scale',
+ a:'我对"和异性谈恋爱"这件事有更具体的想象', b:'我对"和同性谈恋爱"这件事有更具体的想象'},
+
+{sec:'kinsey', type:'scale',
+ a:'我更愿意被异性吸引', b:'我更愿意被同性吸引'},
+
+{sec:'kinsey', type:'scale',
+ a:'和异性发展亲密关系对我来说是"更自然"的方向', b:'和同性发展亲密关系对我来说是"更自然"的方向'},
+
+{sec:'kinsey', type:'scale',
+ a:'我倾向于和异性交朋友更走心', b:'我倾向于和同性交朋友更走心'},
+
+{sec:'kinsey', type:'scale',
+ a:'如果我必须选，我会更想和异性共度一生', b:'如果我必须选，我会更想和同性共度一生'},
+
+{sec:'kinsey', type:'scale',
+ a:'我生活中对异性的"心动的瞬间"更多', b:'我生活中对同性的"心动的瞬间"更多'},
+
+{sec:'kinsey', type:'scale',
+ a:'我更容易对异性产生浪漫的、长久的那种感情', b:'我更容易对同性产生浪漫的、长久的那种感情'},
+
+{sec:'kinsey', type:'scale',
+ a:'我比较不喜欢和异性有身体接触（如拥抱、牵手）', b:'我比较不喜欢和同性有身体接触（如拥抱、牵手）'},
+
+{sec:'kinsey', type:'scale',
+ a:'我和异性的友谊更可能带一点暧昧色彩', b:'我和同性的友谊更可能带一点暧昧色彩'},
+
+{sec:'kinsey', type:'scale',
+ a:'我从青春期开始就常对异性产生好感', b:'我从青春期开始就常对同性产生好感'},
+
+{sec:'kinsey', type:'scale',
+ a:'我和异性在一起更放松、更能做自己', b:'我和同性在一起更放松、更能做自己'},
+
+{sec:'kinsey', type:'scale',
+ a:'我现在/未来更想和异性建立稳定的亲密关系', b:'我现在/未来更想和同性建立稳定的亲密关系'},
+
+// ──────── 角色偏好 (15 题) ────────
+// 二元题: pole +1 → 倾向"主导/主动/1"，pole -1 → 倾向"被动/接受/0"
+{sec:'role', pole:+1, a:'在亲密关系里你更倾向于主动发起（聊天、约会、身体接触）',
+                  b:'在亲密关系里你更倾向于等对方先发起'},
+{sec:'role', pole:-1, a:'你常被对方说"你怎么这么被动/害羞"',
+                  b:'你常被对方说"你怎么这么主动/强势"'},
+{sec:'role', pole:+1, a:'你更喜欢"主导"或"掌控"节奏',
+                  b:'你更喜欢"跟随"或"被引导"'},
+{sec:'role', pole:-1, a:'你倾向于接受对方的安排和决定',
+                  b:'你倾向于安排和决定约会怎么过'},
+{sec:'role', pole:+1, a:'你更倾向"保护"和"照顾"对方',
+                  b:'你更倾向"被保护"和"被照顾"'},
+{sec:'role', pole:-1, a:'你常被说"很温柔"或"很软"',
+                  b:'你常被说"很有力量"或"很有气场"'},
+{sec:'role', pole:+1, a:'你更愿意承担"决策者"角色',
+                  b:'你更愿意承担"配合者"角色'},
+{sec:'role', pole:-1, a:'对方主导时你更自在',
+                  b:'你主导时你更自在'},
+{sec:'role', pole:+1, a:'你倾向于在关系里"先付出"',
+                  b:'你倾向于在关系里"后付出"或"被给予"'},
+{sec:'role', pole:-1, a:'被推进/被追求让你觉得更舒服',
+                  b:'推进/追求对方让你觉得更自在'},
+{sec:'role', pole:+1, a:'你更欣赏"独立、强势、有自己想法"的对象',
+                  b:'你更欣赏"温柔、依赖、愿意让你照顾"的对象'},
+{sec:'role', pole:-1, a:'你常被说"心很细"或"很会照顾人"',
+                  b:'你常被说"比较粗"或"比较自我中心"'},
+{sec:'role', pole:+1, a:'你倾向于表达"我想和你..."或"我希望你..."',
+                  b:'你倾向于表达"我听你的"或"你来决定"'},
+{sec:'role', pole:-1, a:'你更愿意让对方发光，自己当陪衬',
+                  b:'你更愿意让自己发光，让对方当陪衬'},
+{sec:'role', pole:+1, a:'你倾向于在关系里"制定规则"或"定边界"',
+                  b:'你倾向于在关系里"接受规则"或"被告知边界"'},
+
+// ──────── 关系风格 (10 题) ────────
+// 测: 安全感、独立性、表达力、冲突处理
+{sec:'rel', pole:+1, a:'在关系里你常担心"对方是不是还爱我"',
+                  b:'在关系里你常觉得"对方爱我"是稳定的事实'},
+{sec:'rel', pole:-1, a:'你需要大量独处时间来维持自我',
+                  b:'你和对方在一起的时间越多越满足'},
+{sec:'rel', pole:+1, a:'你倾向于把"心里的不舒服"藏起来不说',
+                  b:'你倾向于把"心里的不舒服"立即说出来'},
+{sec:'rel', pole:-1, a:'吵架时你倾向于先"消失/冷静"再说',
+                  b:'吵架时你倾向于"当场说完"再冷静'},
+{sec:'rel', pole:+1, a:'你常在关系里"过度付出"或"讨好"',
+                  b:'你常在关系里保持"平等交换"'},
+{sec:'rel', pole:-1, a:'你的"我"和"我们"界限很清楚',
+                  b:'你常分不清"我想要"还是"我们想要"'},
+{sec:'rel', pole:+1, a:'你害怕"被抛弃"或"对方变心"',
+                  b:'你对"关系变化"基本能平常心对待'},
+{sec:'rel', pole:-1, a:'你能接受"开放式关系"或"非一夫一妻"的安排',
+                  b:'你倾向于"一对一专属"的关系'},
+{sec:'rel', pole:+1, a:'你常通过"做事"来表达爱（修电脑、买礼物、做饭）',
+                  b:'你常通过"说话"来表达爱（说"我爱你"、赞美、倾听）'},
+{sec:'rel', pole:-1, a:'你倾向于"快速进入"一段关系',
+                  b:'你倾向于"慢慢确认"再进入一段关系'},
+];
+</script>
+<script id="result-data">
+// ==================== 群友动物园数据 ====================
+// 每种动物：原类型 + 猪化（emoji 组合 + 新名字）+ 群友语境
+
+const ANIMALS = {
+'lion':{emoji:'🦁',emoji2:'🦁🐷',name:'狮子',name2:'狮子猪',tag:'万兽之王',
+ desc:'你天生就是领导者。在群体里你会自然地站出来指引方向，决策果断，行动力强。你享受掌控感，也愿意为保护你关心的人付出一切。',
+ traits:['天生的决策者','行动派','有保护欲','不畏惧冲突','爱挑战'],
+ weaknesses:['有时太强势','听不进反对意见','容易把别人的事扛在自己肩上'],
+ love:['狮子的爱是占有+保护+引领','你需要被崇拜、也需要被需要','最好的伴侣是欣赏你强势但能给你温柔的存在'],
+ groupRole:'👑 群里的大哥猪',
+ chatTips:['有事直接 @你 效率最高','别拐弯抹角你受不了','夸你能力强比夸你好看更有效','可以请你帮忙做决定','别在你生气时讲冷笑话']},
+
+'dog':{emoji:'🐕',emoji2:'🐕🐷',name:'柴犬',name2:'柴猪',tag:'忠诚的伙伴',
+ desc:'你是一切美好关系的核心。温暖、有爱、可靠、让人放心。你享受照顾别人、被人需要的感觉，也渴望被爱。社交场合你常常是那个把大家串起来的人。',
+ traits:['温暖体贴','忠诚','善于照顾他人','高情商','维护和谐'],
+ weaknesses:['过度付出','难说不','可能压抑自己需求','容易被人当工具人'],
+ love:['你爱的方式是"无微不至的照顾"','你需要的是"被需要"的安全感','别忘了：爱自己，才能更好地爱别人'],
+ groupRole:'🍚 群里的贴心棉袄猪',
+ chatTips:['直接说"辛苦了"比"你真棒"更暖你','能让你帮忙你会很开心','别在你面前贬低群友','偶尔也要关注你','可以托付秘密']},
+
+'cat':{emoji:'🐱',emoji2:'🐱🐷',name:'黑猫',name2:'黑猫猪',tag:'独立的神秘主义者',
+ desc:'你是天生的思考者，独来独往，深入思考自己感兴趣的领域。你不热衷社交，但一旦你选择靠近某个人，那份连接是深而持久的。你神秘、低调、有自己的一套逻辑。',
+ traits:['深度独立','内省','忠于自己','观察力强','神秘感'],
+ weaknesses:['容易封闭','难敞开心扉','在群体中显得高冷','别人可能误解你'],
+ love:['你的爱是"精挑细选后的全然投入"','你一旦认定就不轻易变','需要对方给你独立空间，也给你稳定感'],
+ groupRole:'🌙 群里的深夜情感主播',
+ chatTips:['私聊比群聊更有效','深夜发消息能触发你的话匣子','别追问你不想回答的问题','发表情包比打字更舒服','给你空间，你反而会靠近']},
+
+'butterfly':{emoji:'🦋',emoji2:'🦋🐷',name:'蝴蝶',name2:'蝴蝶猪',tag:'美丽的灵魂',
+ desc:'你内心世界极其丰富。你对美、意义、关系、情感有极深的感知力。你不是没有逻辑，而是你的逻辑常常被"这对我有没有意义"驱动。你活在自己的频率里，让接触你的人也变得柔软。',
+ traits:['共情力极强','审美独到','追求意义','温柔','理想主义'],
+ weaknesses:['容易受伤','有时活在想象里','对人对事期望过高','难接受现实的不完美'],
+ love:['你的爱是"灵魂层面的连接"','你需要被理解、被看见、被珍惜','别为了维持关系而磨掉自己的光芒'],
+ groupRole:'🌸 群里的氛围诗人',
+ chatTips:['分享文艺内容你会秒回','长文你看得下去','会愿意为朋友写小作文','别用糙话跟你交流','欣赏你的品味你会很开心']},
+
+'monkey':{emoji:'🐒',emoji2:'🐒🐷',name:'猴子',name2:'猴猪',tag:'创意无限的开心果',
+ desc:'你聪明、灵活、点子多。你不按常理出牌，享受打破规则、创造新玩法的快感。在群体中你是气氛组组长，社交对你来说是能量来源。你讨厌无聊、讨厌重复。',
+ traits:['点子王','反应快','会玩','有感染力','反叛精神'],
+ weaknesses:['三分钟热度','容易冲动作决定','难以坚持重复任务','话多到让人累'],
+ love:['你的爱是"玩出来的"','你需要的是能跟你一起冒险、一起傻笑的伴侣','别因为新鲜感错过深度的关系'],
+ groupRole:'🎉 群里的气氛组组长',
+ chatTips:['斗图永远输不了你','跟你玩梗你接得住','别试图约束你的话题','群里的梗都从你这里开始','能拉你一起玩你会很开心']},
+
+'eagle':{emoji:'🦅',emoji2:'🦅🐷',name:'鹰',name2:'鹰猪',tag:'高空的观察者',
+ desc:'你冷静、敏锐、行动力强。你看问题一眼看到本质，行动时干脆不拖泥带水。你不依赖情感做决定，但也不冷血——你只是把情感放在逻辑之后。',
+ traits:['洞察力强','独立','行动力','客观','不情绪化'],
+ weaknesses:['有时显得冷漠','难主动示弱','可能低估情感价值'],
+ love:['你的爱是"我看见了所以我选择"','你不会甜言蜜语，但你用行动表达','需要伴侣独立、不黏人、能给你自由'],
+ groupRole:'🦉 群里的技术大佬',
+ chatTips:['技术问题 @你 准没错','别问重复问题','你讨厌没深度的客套','欣赏你的专业你会多说几句','少拉你水群']},
+
+'fox':{emoji:'🦊',emoji2:'🦊🐷',name:'狐狸',name2:'狐狸猪',tag:'灵活聪明的独行侠',
+ desc:'你聪明、灵活、不喜欢被束缚。你能在不同环境里轻松切换角色——严谨时严谨、放纵时放纵。你享受自由，但也需要自己的小角落和小确幸。',
+ traits:['灵活','聪明','独立','享受当下','不拘小节'],
+ weaknesses:['有时显得"不认真"','难长期承诺','可能让追求稳定的人失望'],
+ love:['你的爱是"此刻我们就享受此刻"','你需要伴侣理解你对自由的需求','别因为害怕失去就放弃自己的节奏'],
+ groupRole:'🦊 群里的古灵精怪',
+ chatTips:['你接梗快，但讨厌强迫站队','可以开玩笑但要有底线','会主动开小窗跟你聊私事','你爱发语音胜过打字','给你空间反而更近']},
+
+'panda':{emoji:'🐼',emoji2:'🐼🐷',name:'熊猫',name2:'熊猫猪',tag:'温柔世界的稳定器',
+ desc:'你是那种让人想靠近的人。温和、稳重、有耐心、不急不躁。你享受简单的生活——吃好、睡好、跟喜欢的人待在一起。你不追求轰轰烈烈，但你的稳定本身就是一种力量。',
+ traits:['温和','可靠','有耐心','让人安心','享受当下'],
+ weaknesses:['可能过于被动','不敢争取自己想要的','舒适圈可能变成牢笼'],
+ love:['你的爱是"细水长流的陪伴"','你需要对方也懂得珍惜日常','别忘了：偶尔也可以主动一点'],
+ groupRole:'🐼 群里的治愈系',
+ chatTips:['累了可以跟你聊天解压','你话不多但都说在点子上','慢节奏、温柔的方式最好','你不喜欢被强迫表态','你是群里"温柔到最后"的存在']},
+
+'dolphin':{emoji:'🐬',emoji2:'🐬🐷',name:'海豚',name2:'海豚猪',tag:'自由的快乐传播者',
+ desc:'你像水一样自由、灵活、快乐。你活在当下，享受生活的每一刻。社交对你来说是充电，变化对你来说是氧气。你讨厌沉闷和压抑，追求的是"活得尽兴"。',
+ traits:['乐观','社交达人','适应力强','活在当下','爱自由'],
+ weaknesses:['可能不愿深入','难承受长期的沉闷','承诺感可能不足'],
+ love:['你的爱是"我们一起玩、一起笑、一起活"','需要伴侣能跟你一起享受当下','也要学会在关系里给彼此深度'],
+ groupRole:'🌊 群里的快乐源泉',
+ chatTips:['邀请你参加活动你会秒答应','自拍/表情包会得到你最大的响应','别让你做无聊的事','能跟你一起笑的就是朋友','你讨厌沉重的话题']},
+
+'owl':{emoji:'🦉',emoji2:'🦉🐷',name:'猫头鹰',name2:'猫头鹰猪',tag:'深夜的智慧者',
+ desc:'你是天生的思考者。你活在自己的脑子里，夜里特别清醒，对世界有自己独到的见解。你不需要很多人理解你——你只要一个能听你说话的人。',
+ traits:['深度思考','有远见','独立','不随波逐流','看穿表象'],
+ weaknesses:['可能活得太"脑"里','社交圈小','有时太严肃','难行动（想太多）'],
+ love:['你的爱是"我懂你"','你需要伴侣欣赏你的深度','别忘了偶尔走出脑子，活在当下'],
+ groupRole:'🌙 群里的深夜情感主播',
+ chatTips:['深夜 12 点后找你聊人生哲学','你讨厌肤浅的话题','会主动分享你看到的深度内容','别催你做决定','你能听懂言外之意']},
+
+'wolf':{emoji:'🐺',emoji2:'🐺🐷',name:'狼',name2:'狼猪',tag:'冷峻的群体领袖',
+ desc:'你冷静、忠诚、有原则。你在群体中不是最显眼的那个，但你是最有原则的。你用行动表达忠诚，用实力赢得尊重。你不轻易信任，一旦信任就会守护到底。',
+ traits:['忠诚','原则性强','冷静','有实力','能扛事'],
+ weaknesses:['可能太严肃','难敞开心扉','可能让想靠近的人感到压力'],
+ love:['你的爱是"我用一生守你"','你不会甜言蜜语，但你的陪伴是最稳的','给伴侣一点脆弱的空间，你会更可爱'],
+ groupRole:'🐺 群里的酷盖',
+ chatTips:['跟你说话简洁有力','别卖萌你受不了','找你帮忙不会被打脸','欣赏你的人格你会回以尊重','别试图套近乎']},
+
+'rabbit':{emoji:'🐰',emoji2:'🐰🐷',name:'兔子',name2:'兔猪',tag:'敏感温柔的小可爱',
+ desc:'你温柔、敏感、善良。你对周围的人有细腻的感知力，能察觉到别人情绪的微妙变化。你害怕冲突、害怕伤害，但也因为这样，你常常把自己藏在壳里。',
+ traits:['温柔','敏感','善良','细腻','体贴'],
+ weaknesses:['容易受伤','回避冲突','可能过度在意别人评价','难说不'],
+ love:['你的爱是"我想让你舒服"','你需要被温柔地看见、被耐心地靠近','别忘了：你的需求也很重要'],
+ groupRole:'🐰 群里的软萌小可爱',
+ chatTips:['温柔的话对你最有效','别突然 @你 会被吓到','你很少主动说话但都是真心话','关心你你会被融化','别在你面前吵架']},
+
+'tiger':{emoji:'🐅',emoji2:'🐅🐷',name:'老虎',name2:'老虎猪',tag:'果断的行动派',
+ desc:'你直觉敏锐，行动力强，敢做敢当。你不纠结于"如果...会怎样"，你想的是"我去做看看"。你享受挑战、竞争、达成目标的过程。',
+ traits:['直觉强','行动派','敢拼','有魄力','有魅力'],
+ weaknesses:['可能太冲','可能忽略细节','可能让人感到压力'],
+ love:['你的爱是"我保护你"','你需要伴侣欣赏你的力量','也可以试试偶尔展示柔软的那面'],
+ groupRole:'🐅 群里的硬核野猪',
+ chatTips:['约你打游戏你必到','有挑战性的任务找你','你欣赏敢拼的人','别试图说服你做不感兴趣的事','你能扛事但也会累']},
+
+'dragon':{emoji:'🐉',emoji2:'🐉🐷',name:'龙',name2:'龙猪',tag:'【???】',
+ desc:'你是一个独特的存在。你的灵魂像龙一样——稀有、强大、不被轻易理解。你既有火的热烈，又有云的自由。你不屑于跟别人一样，你有自己的宇宙。',
+ traits:['稀有','强大','独特','有自己的宇宙','不解释自己'],
+ weaknesses:['可能太孤立','可能让身边的人感到难以企及'],
+ love:['你的爱是"我选了你"','一旦投入就是深而强烈的','需要伴侣是个能跟你平等对话的智者'],
+ groupRole:'🐉 群宠（不解释，自己感受）',
+ chatTips:['找到了一个——好好珍惜','你不需要任何话术','你的气场就是话语','找到第二个基本不可能'],
+ hidden:true},
+
+'unicorn':{emoji:'🦄',emoji2:'🦄🐷',name:'独角兽',name2:'独角兽猪',tag:'奇幻的存在',
+ desc:'你是那种让世界变得有趣的人。你既有孩童般的天真，又有超乎常人的直觉。你看到的世界比别人多一个维度，你活得像一场梦，但你绝不是在做梦。',
+ traits:['天真','有创造力','直觉强','有想象力','独一无二'],
+ weaknesses:['可能不接地气','难被常人所理解','需要小心保护自己的能量'],
+ love:['你的爱是"我跟你分享我的世界"','需要伴侣能尊重你的奇思妙想','别因为"不被理解"就放弃自己'],
+ groupRole:'🦄 群里的奇幻存在',
+ chatTips:['分享你的奇思妙想会被认真对待','你讨厌被当成"幼稚"','创意合作找你','你说话会突然冒金句','你值得被看见']},
+};
+
+// 判定函数：基于 4 维组合 + 强度决定动物
+function pickAnimal(dims, pcts) {
+  // 隐藏彩蛋：4 维强度都 > 60% 且每个都在强势方向
+  const e = dims.ei >= 0 ? 'E' : 'I';
+  const s = dims.sn >= 0 ? 'S' : 'N';
+  const t = dims.tf >= 0 ? 'T' : 'F';
+  const j = dims.jp >= 0 ? 'J' : 'P';
+  const minPct = Math.min(pcts.ei, pcts.sn, pcts.tf, pcts.jp);
+  // 彩蛋触发：4 维都很强 + 不太常见的组合
+  if (minPct > 60 && ((e==='N' && t==='F' && j==='P') || (e==='I' && s==='N' && t==='T'))) {
+    return 'dragon';
+  }
+  // 主要判定逻辑
+  if (e === 'E' && t === 'T' && j === 'J') return 'lion';
+  if (e === 'E' && t === 'F' && j === 'J') return 'dog';
+  if (e === 'I' && t === 'T' && j === 'J') return 'owl';
+  if (e === 'I' && t === 'F' && j === 'J') return 'panda';
+  if (e === 'E' && t === 'T' && j === 'P') return 'tiger';
+  if (e === 'E' && t === 'F' && j === 'P') return 'dolphin';
+  if (e === 'I' && t === 'T' && j === 'P') return 'fox';
+  if (e === 'I' && t === 'F' && j === 'P') return 'rabbit';
+  // 强 N 的判定
+  if (s === 'N') {
+    if (e === 'E' && t === 'F') return 'butterfly';
+    if (e === 'I' && t === 'F') return 'unicorn';
+    if (e === 'E' && t === 'T') return 'monkey';
+    if (e === 'I' && t === 'T') return 'cat';
+  }
+  // fallback
+  return 'panda';
+}
+
+// 亚型判定（基于角色倾向）
+function pickSubtype(role_score) {
+  if (role_score < -0.5) return {tag:'小跟班',desc:'你倾向于接受、被照顾、在关系里偏被动。'};
+  if (role_score > 0.5) return {tag:'团宠',desc:'你倾向于主导、照顾别人，在关系里偏主动。'};
+  return {tag:'群内平衡者',desc:'你在不同场景下能切换主导/接受角色。'};
+}
+
+// 灵魂伴侣动物：找性格互补的
+function pickSoulmate(dims) {
+  const e = dims.ei >= 0 ? 'E' : 'I';
+  const t = dims.tf >= 0 ? 'T' : 'F';
+  const j = dims.jp >= 0 ? 'J' : 'P';
+  // 互补规则
+  if (e === 'I' && t === 'F') return 'dog';   // 安静敏感 ↔ 温暖外向
+  if (e === 'E' && t === 'T') return 'cat';   // 外向逻辑 ↔ 独立深度
+  if (e === 'I' && t === 'T') return 'butterfly'; // 思考者 ↔ 情感丰富
+  if (e === 'E' && t === 'F') return 'owl';   // 社交温暖 ↔ 深夜智慧
+  if (j === 'J') return 'dolphin';             // 计划者 ↔ 自由者
+  if (j === 'P') return 'panda';               // 自由者 ↔ 稳定者
+  return 'fox';                                // fallback
+}
+
+const KINSEY_LABELS = [
+'完全异性恋','几乎异性恋','异性恋为主偶尔同性','双性恋','同性为主偶尔异性','几乎同性恋','完全同性恋'
+];
+const ROLE_LABELS = [
+'强烈倾向接受方/0','偏接受方/0','中性/灵活','偏主导方/1','强烈倾向主导方/1'
+];
+</script>
+<script id="quiz-logic">
+// ==================== 引擎代码 ====================
+let state = { step: 0, answers: [] };
+function start() { renderIntro(); }
+function renderIntro() {
+  document.getElementById('app').innerHTML = `
+    <div class="card">
+      <h2>🐾 欢迎来到群友动物园</h2>
+      <p>通过 <b>105 道选择题</b>，我们会从 4 个维度画出你的"群友指纹"，然后在 <b>14 种群友小猪</b> 中找出最像你的那一只。</p>
+      <p>测完你会得到：</p>
+      <ul>
+        <li>🐷 <b>你的群友小猪</b>（名字 + emoji 组合）</li>
+        <li>🐺 <b>群内定位</b>（团宠/气氛组/技术大佬/...）</li>
+        <li>💫 <b>群友属性面板</b>（4 维度可视化）</li>
+        <li>🦄 <b>最佳群搭子</b>（最匹配的另一种小猪）</li>
+        <li>💬 <b>群聊话术</b>（怎么跟你说话最有效）</li>
+      </ul>
+      <p>预计 15-20 分钟。所有数据 <b>只在你的浏览器里</b>，<b>不会上传任何地方</b>。</p>
+      <p class="disclaimer">⚠️ <b>免责声明</b>：本测试仅供娱乐和自我探索，<b>不能</b>作为任何专业心理评估或性向诊断。性向是个人隐私，本测试结果不代表你的真实身份，也不应该被用来给自己或他人贴标签。</p>
+      <div style="text-align:center;margin-top:24px">
+        <button class="btn" onclick="begin()">我了解，开始</button>
+      </div>
+    </div>`;
+}
+function begin() {
+  state = { step: 0, answers: new Array(QUESTIONS.length).fill(null) };
+  renderQuestion();
+}
+function renderQuestion() {
+  const i = state.step;
+  const q = QUESTIONS[i];
+  const total = QUESTIONS.length;
+  const pct = Math.round((i / total) * 100);
+  const sectionLabel = {mbti:'MBTI 性格维度', kinsey:'性向谱系（Kinsey 量表）', role:'角色偏好', rel:'关系风格'}[q.sec];
+  const isScale = q.type === 'scale';
+  document.getElementById('app').innerHTML = `
+    <div class="progress-text">第 ${i+1} / ${total} 题 · ${pct}%</div>
+    <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    <div class="card">
+      <span class="section-tag">${sectionLabel}</span>
+      <div class="question-text">${q.text || ''}${q.text ? '' : ''}</div>
+      ${isScale ? renderScale() : renderBinary()}
+      <div class="error-msg" id="err" style="display:none">请选择一个答案</div>
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prev()" ${i===0?'disabled style="opacity:0.4"':''}>← 上一题</button>
+        <button class="btn" onclick="next()">${i===total-1?'看结果 →':'下一题 →'}</button>
+      </div>
+    </div>`;
+}
+function renderBinary() {
+  const i = state.step;
+  const q = QUESTIONS[i];
+  return `<div class="options">${['a','b'].map(k => `
+    <button class="option ${state.answers[i]===k?'selected':''}" onclick="pick('${k}')">
+      <div class="opt-label">${k==='a'?'A':'B'}</div>
+      <div class="opt-text">${q[k]}</div>
+    </button>`).join('')}</div>`;
+}
+function renderScale() {
+  const i = state.step;
+  const q = QUESTIONS[i];
+  const labels = ['完全不同意','不同意','有点不同意','中性','有点同意','同意','完全同意'];
+  return `
+    <div class="scale-anchors"><span>← ${q.a}</span><span>${q.b} →</span></div>
+    <div class="scale-options">${labels.map((lab,k) => `
+      <button class="option ${state.answers[i]===(k+1)?'selected':''}" onclick="pick(${k+1})">
+        <div class="opt-label">${k+1}</div>
+        <div class="opt-text">${lab}</div>
+      </button>`).join('')}</div>`;
+}
+function pick(v) {
+  state.answers[state.step] = v;
+  // 重新渲染让选中态生效
+  renderQuestion();
+  // 0.3 秒后自动进入下一题（仅当不是最后一题）
+  if (state.step < QUESTIONS.length - 1) {
+    setTimeout(() => { state.step++; renderQuestion(); }, 250);
+  }
+}
+function prev() { if (state.step > 0) { state.step--; renderQuestion(); } }
+function next() {
+  if (state.answers[state.step] == null) {
+    document.getElementById('err').style.display = 'block';
+    return;
+  }
+  if (state.step < QUESTIONS.length - 1) { state.step++; renderQuestion(); }
+  else { renderResult(); }
+}
+function score() {
+  // MBTI 计分
+  const dims = { ei: 0, sn: 0, tf: 0, jp: 0 };
+  QUESTIONS.forEach((q, i) => {
+    if (q.sec !== 'mbti') return;
+    const a = state.answers[i];
+    if (a === null || a === undefined) return;
+    const sign = a === 'a' ? q.pole : -q.pole;
+    dims[q.dim] += sign;
+  });
+  const mbti = (dims.ei >= 0 ? 'E' : 'I') + (dims.sn >= 0 ? 'S' : 'N') +
+               (dims.tf >= 0 ? 'T' : 'F') + (dims.jp >= 0 ? 'J' : 'P');
+  const mbti_pcts = {
+    ei: Math.round((Math.abs(dims.ei) / 15) * 100),
+    sn: Math.round((Math.abs(dims.sn) / 15) * 100),
+    tf: Math.round((Math.abs(dims.tf) / 15) * 100),
+    jp: Math.round((Math.abs(dims.jp) / 15) * 100),
+  };
+  // Kinsey: 1-7 量表，1 = 完全异性恋 (0)，7 = 完全同性恋 (6)
+  // 找出题索引范围
+  let kinsey_total = 0, kinsey_n = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (q.sec !== 'kinsey') return;
+    const a = state.answers[i];
+    if (a == null) return;
+    kinsey_total += a;
+    kinsey_n++;
+  });
+  // 1-7 → 0-6 映射
+  const kinsey_score = kinsey_n > 0 ? Math.round(((kinsey_total / kinsey_n) - 1) * (6 / 6)) : 3;
+  const kinsey_label = KINSEY_LABELS[Math.max(0, Math.min(6, kinsey_score))];
+  // Role: -15 到 +15
+  let role_total = 0, role_n = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (q.sec !== 'role') return;
+    const a = state.answers[i];
+    if (a == null) return;
+    const sign = a === 'a' ? q.pole : -q.pole;
+    role_total += sign;
+    role_n++;
+  });
+  const role_score = role_total / role_n; // -1 到 +1
+  // 0..1 映射到 5 档
+  let role_idx;
+  if (role_score < -0.6) role_idx = 0;
+  else if (role_score < -0.2) role_idx = 1;
+  else if (role_score < 0.2) role_idx = 2;
+  else if (role_score < 0.6) role_idx = 3;
+  else role_idx = 4;
+  const role_label = ROLE_LABELS[role_idx];
+  // Rel: 也算一个综合指标
+  let rel_total = 0, rel_n = 0;
+  QUESTIONS.forEach((q, i) => {
+    if (q.sec !== 'rel') return;
+    const a = state.answers[i];
+    if (a == null) return;
+    const sign = a === 'a' ? q.pole : -q.pole;
+    rel_total += sign;
+    rel_n++;
+  });
+  const rel_score = rel_total / rel_n;
+  return { mbti, mbti_pcts, dims, kinsey_score, kinsey_label, role_idx, role_label, role_score, rel_score };
+}
+function renderResult() {
+  const s = score();
+  const animalKey = pickAnimal(s.dims, s.mbti_pcts);
+  const animal = ANIMALS[animalKey];
+  const subtype = pickSubtype(s.role_score);
+  const soulmateKey = pickSoulmate(s.dims);
+  const soulmate = ANIMALS[soulmateKey];
+  const dimLetters = { ei: ['E', 'I'], sn: ['S', 'N'], tf: ['T', 'F'], jp: ['J', 'P'] };
+  const dimPole = { ei: '外向 E vs 内向 I', sn: '实感 S vs 直觉 N',
+                    tf: '思维 T vs 情感 F', jp: '判断 J vs 感知 P' };
+  const isHidden = animal.hidden;
+  document.getElementById('app').innerHTML = `
+    <div class="share-card" ${isHidden ? 'style="background:linear-gradient(135deg,#7c3aed,#db2777,#dc2626)"' : ''}>
+      <div style="font-size:14px;opacity:0.95">你的群友小猪是</div>
+      <div style="font-size:96px;line-height:1.2;margin:8px 0">${animal.emoji2}</div>
+      <div class="big-type">${animal.name2}</div>
+      <div style="font-size:16px;opacity:0.95;margin-bottom:6px">${animal.groupRole}</div>
+      <div class="kinsey">${isHidden ? animal.tag : animal.tag + ' · ' + subtype.tag}</div>
+    </div>
+    <div class="card result-section">
+      <h3>${animal.emoji2} ${animal.name2}的群友画像</h3>
+      <p>${animal.desc.replace(/\\n\\n/g, '<br><br>')}</p>
+      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <b style="color:var(--good)">✓ 你的天赋</b>
+          <ul style="margin-top:6px">${animal.traits.map(t=>`<li>${t}</li>`).join('')}</ul>
+        </div>
+        <div>
+          <b style="color:var(--warn)">⚠ 你的群友雷区</b>
+          <ul style="margin-top:6px">${animal.weaknesses.map(t=>`<li>${t}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>
+    <div class="card result-section">
+      <h3>${subtype.tag === '团宠' ? '👑' : subtype.tag === '小跟班' ? '🐾' : '🌀'} 你的群内定位：${subtype.tag}</h3>
+      <p>${subtype.desc}</p>
+    </div>
+    <div class="card result-section">
+      <h3>💬 跟你聊天的最佳话术</h3>
+      <ul style="padding-left:0;list-style:none">
+        ${animal.chatTips.map((t,i)=>`<li style="padding:8px 0;border-bottom:1px dashed var(--border)">· ${t}</li>`).join('')}
+      </ul>
+    </div>
+    <div class="card result-section">
+      <h3>🐷 你的最佳群搭子</h3>
+      <div style="text-align:center;padding:12px 0">
+        <div style="font-size:64px">${soulmate.emoji2}</div>
+        <div style="font-size:18px;font-weight:700;margin:6px 0">${soulmate.name2}</div>
+        <div style="color:var(--muted);font-size:13px">${soulmate.groupRole}</div>
+      </div>
+      <p>${soulmate.desc.split('。')[0]}。</p>
+      <p style="margin-top:10px;color:var(--muted);font-size:13px">你俩在一起会很有化学反应。一个负责讲、一个负责笑，一个负责带节奏、一个负责兜底。</p>
+    </div>
+    <div class="card result-section">
+      <h3>📊 群友属性面板</h3>
+      ${['ei','sn','tf','jp'].map(d => {
+        const v = s.dims[d];
+        const pct = s.mbti_pcts[d];
+        const left = dimLetters[d][0], right = dimLetters[d][1];
+        const winner = v >= 0 ? left : right;
+        return `<div class="dim-bar">
+          <div class="dim-label"><span>${dimPole[d]}</span><b>${winner} (${pct}%)</b></div>
+          <div class="dim-track">
+            <div class="dim-left">${left}</div>
+            <div class="dim-right">${right}</div>
+            <div class="dim-marker" style="left:${50 + (v/15)*50}%"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="card result-section">
+      <h3>🌈 性向谱系参考</h3>
+      <p>Kinsey 量表位置: <b>${s.kinsey_score}</b> / 6</p>
+      <p>分类: <b>${s.kinsey_label}</b></p>
+      <p class="disclaimer" style="margin-top:10px">性向是谱系而不是二分。任何位置都是合理的、自然的、属于你的。本测试只做参考，不下定义。</p>
+    </div>
+    <div class="card result-section">
+      <h3>📤 分享 / 保存</h3>
+      <p>把结果分享给群友，或导出留档。</p>
+      <div class="action-row">
+        <button class="btn" onclick="downloadJSON()">导出 JSON</button>
+        <button class="btn btn-secondary" onclick="downloadText()">导出文本</button>
+        <button class="btn btn-secondary" onclick="copyShare()">复制分享文字</button>
+        <button class="btn btn-secondary" onclick="restart()">重新测试</button>
+      </div>
+      <div id="copy-msg" class="error-msg" style="color:var(--good);display:none;margin-top:10px">已复制到剪贴板！</div>
+    </div>
+    <div class="card">
+      <p class="disclaimer">
+        <b>⚠️ 重要提醒</b><br>
+        · 本测试仅供娱乐和群友间的玩笑，<b>不能替代专业心理评估</b><br>
+        · 群友小猪是简化标签，真实的你比任何一只小猪都更丰富<br>
+        · 性向是个人核心隐私，本测试结果<b>不会</b>也不应该被用来鉴定或评判任何人<br>
+        · 如果结果让你困惑、焦虑或想深入探索，建议找 <b>LGBTQ+ 友善</b> 的心理咨询师聊聊<br>
+        · 所有数据<b>只存在你的浏览器</b>，关页面就消失
+      </p>
+    </div>`;
+}
+function downloadJSON() {
+  const s = score();
+  const animalKey = pickAnimal(s.dims, s.mbti_pcts);
+  const animal = ANIMALS[animalKey];
+  const subtype = pickSubtype(s.role_score);
+  const soulmateKey = pickSoulmate(s.dims);
+  const data = {
+    timestamp: new Date().toISOString(),
+    answers: state.answers,
+    piggy: { key: animalKey, name: animal.name2, emoji: animal.emoji2, tag: animal.tag, groupRole: animal.groupRole },
+    subtype: subtype,
+    best_partner: { key: soulmateKey, name: ANIMALS[soulmateKey].name2, emoji: ANIMALS[soulmateKey].emoji2, groupRole: ANIMALS[soulmateKey].groupRole },
+    mbti_letters: (s.dims.ei >= 0 ? 'E' : 'I') + (s.dims.sn >= 0 ? 'S' : 'N') +
+                  (s.dims.tf >= 0 ? 'T' : 'F') + (s.dims.jp >= 0 ? 'J' : 'P'),
+    mbti_pcts: s.mbti_pcts,
+    kinsey_score: s.kinsey_score,
+    kinsey_label: s.kinsey_label,
+    role_score: s.role_score,
+    rel_score: s.rel_score,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `my-piggy-${animalKey}-${Date.now()}.json`;
+  a.click();
+}
+function downloadText() {
+  const s = score();
+  const animalKey = pickAnimal(s.dims, s.mbti_pcts);
+  const animal = ANIMALS[animalKey];
+  const subtype = pickSubtype(s.role_score);
+  const soulmateKey = pickSoulmate(s.dims);
+  const soulmate = ANIMALS[soulmateKey];
+  const txt = `🐷 测试你是什么样的群友
+================
+时间: ${new Date().toLocaleString('zh-CN')}
+
+你的群友小猪: ${animal.emoji2} ${animal.name2} (${animal.tag})
+群内定位: ${animal.groupRole} · ${subtype.tag}
+最佳群搭子: ${soulmate.emoji2} ${soulmate.name2} (${soulmate.groupRole})
+
+你的画像:
+${animal.desc}
+
+✓ 你的天赋:
+${animal.traits.map(t => '  · ' + t).join('\n')}
+
+⚠ 你的群友雷区:
+${animal.weaknesses.map(t => '  · ' + t).join('\n')}
+
+💬 跟你聊天的最佳话术:
+${animal.chatTips.map(l => '  · ' + l).join('\n')}
+
+📊 群友属性面板:
+  E/I: ${s.dims.ei >= 0 ? 'E' : 'I'} (${s.mbti_pcts.ei}%)
+  S/N: ${s.dims.sn >= 0 ? 'S' : 'N'} (${s.mbti_pcts.sn}%)
+  T/F: ${s.dims.tf >= 0 ? 'T' : 'F'} (${s.mbti_pcts.tf}%)
+  J/P: ${s.dims.jp >= 0 ? 'J' : 'P'} (${s.mbti_pcts.jp}%)
+
+🌈 性向谱系: ${s.kinsey_score}/6 · ${s.kinsey_label}
+🎭 角色倾向: ${s.role_label} (${s.role_score.toFixed(2)})
+🔐 关系风格: ${s.rel_score.toFixed(2)}
+
+—— 本测试仅供娱乐，不代表任何专业评估 ——
+`;
+  const blob = new Blob([txt], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `my-piggy-${animalKey}-${Date.now()}.txt`;
+  a.click();
+}
+function copyShare() {
+  const s = score();
+  const animalKey = pickAnimal(s.dims, s.mbti_pcts);
+  const animal = ANIMALS[animalKey];
+  const soulmateKey = pickSoulmate(s.dims);
+  const soulmate = ANIMALS[soulmateKey];
+  const subtype = pickSubtype(s.role_score);
+  const txt = `🐷 我刚测了个"群友小猪"——
+
+我的群友小猪是 ${animal.emoji2} ${animal.name2}
+群内定位: ${animal.groupRole} · ${subtype.tag}
+最佳群搭子: ${soulmate.emoji2} ${soulmate.name2}
+
+${animal.desc.split('。')[0]}。
+
+@全体群友 都来测测 🐷
+`;
+  navigator.clipboard.writeText(txt).then(() => {
+    const msg = document.getElementById('copy-msg');
+    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 3000); }
+  }).catch(() => {
+    // fallback: 用一个临时 textarea
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+    const msg = document.getElementById('copy-msg');
+    if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display = 'none', 3000); }
+  });
+}
+function restart() { start(); }
+window.addEventListener('DOMContentLoaded', start);
+</script>
+<script>
+// 安全网: 如果上面 DOMContentLoaded 没触发, 3 秒后强制启动
+setTimeout(() => { if (!document.getElementById('app').innerHTML.trim()) start(); }, 3000);
+</script>
+</script>
+</body>
+</html>
