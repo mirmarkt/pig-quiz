@@ -130,6 +130,14 @@ header .subtitle { color: var(--muted); font-size: 14px; }
   position: absolute; top: -4px; bottom: -4px; width: 4px; background: var(--fg);
   box-shadow: 0 0 0 2px var(--card); transition: left 0.5s ease;
 }
+
+/* 能力值面板 */
+.ability-grid{display:flex;flex-direction:column;gap:10px}
+.ability-row{display:grid;grid-template-columns:90px 1fr 36px;align-items:center;gap:10px}
+.ability-label{font-size:13px;font-weight:600;white-space:nowrap}
+.ability-bar{height:14px;background:var(--border);border-radius:7px;overflow:hidden;position:relative}
+.ability-fill{height:100%;border-radius:7px;transition:width 0.6s ease;min-width:2px}
+.ability-val{font-size:14px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums}
 .share-card {
   background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: white; border-radius: 16px; padding: 28px; text-align: center;
@@ -153,7 +161,7 @@ header .subtitle { color: var(--muted); font-size: 14px; }
 <div class="container">
 <header>
   <h1>🐷 测试你是什么样的群友</h1>
-  <p class="subtitle">105 题互动版 · 全本地 · 灵魂动物园出品的群友图鉴</p>
+  <p class="subtitle">75 题互动版 · 全本地 · 灵魂动物园出品的群友图鉴</p>
 </header>
 <div id="app"></div>
 <div class="footer">
@@ -163,8 +171,7 @@ header .subtitle { color: var(--muted); font-size: 14px; }
 <script>
 // ==================== 题库 ====================
 // 每题: {sec, dim, pole, a, b, type}
-// sec: 'mbti' | 'kinsey' | 'role' | 'rel'
-// type: 'binary' (二选一) | 'scale' (1-7 量表，sec='kinsey' 用)
+// sec: 'mbti' | 'role'  (去掉了 'kinsey' 和 'rel')
 const QUESTIONS = [
 
 // ──────── MBTI: E/I (15 题) ────────
@@ -295,72 +302,7 @@ const QUESTIONS = [
 {sec:'mbti', dim:'jp', pole:+1, a:'做决定时你更想要"确定感"',
                   b:'做决定时你更想要"自由度"'},
 
-// ──────── Kinsey 量表 (20 题) ────────
-// 0=完全异性恋, 6=完全同性恋
-// 用 1-7 量表回答：1=完全不同意 4=中性 7=完全同意
-// 题干+两端描述，避免直接问
-{sec:'kinsey', type:'scale',
- a:'我对异性的浪漫吸引力/情感连接明显比对同性更深、更频繁', b:'我对同性的浪漫吸引力/情感连接明显比对异性更深、更频繁'},
-
-{sec:'kinsey', type:'scale',
- a:'在异性面前我更可能产生"怦然心动"的感觉', b:'在同性面前我更可能产生"怦然心动"的感觉'},
-
-{sec:'kinsey', type:'scale',
- a:'我幻想的对象历史上绝大多数是异性', b:'我幻想的对象历史上绝大多数是同性'},
-
-{sec:'kinsey', type:'scale',
- a:'我对异性的身体吸引力感受更强烈', b:'我对同性的身体吸引力感受更强烈'},
-
-{sec:'kinsey', type:'scale',
- a:'我和异性约会时通常更自在、更投入', b:'我和同性约会时通常更自在、更投入'},
-
-{sec:'kinsey', type:'scale',
- a:'我的"理想对象"想象中更偏异性化', b:'我的"理想对象"想象中更偏同性化'},
-
-{sec:'kinsey', type:'scale',
- a:'我看影视/小说时，异性恋情节更能打动我', b:'我看影视/小说时，同性恋情节更能打动我'},
-
-{sec:'kinsey', type:'scale',
- a:'在过去的浪漫经历/约会中，异性对象占绝大多数', b:'在过去的浪漫经历/约会中，同性对象占绝大多数'},
-
-{sec:'kinsey', type:'scale',
- a:'我对"和异性谈恋爱"这件事有更具体的想象', b:'我对"和同性谈恋爱"这件事有更具体的想象'},
-
-{sec:'kinsey', type:'scale',
- a:'我更愿意被异性吸引', b:'我更愿意被同性吸引'},
-
-{sec:'kinsey', type:'scale',
- a:'和异性发展亲密关系对我来说是"更自然"的方向', b:'和同性发展亲密关系对我来说是"更自然"的方向'},
-
-{sec:'kinsey', type:'scale',
- a:'我倾向于和异性交朋友更走心', b:'我倾向于和同性交朋友更走心'},
-
-{sec:'kinsey', type:'scale',
- a:'如果我必须选，我会更想和异性共度一生', b:'如果我必须选，我会更想和同性共度一生'},
-
-{sec:'kinsey', type:'scale',
- a:'我生活中对异性的"心动的瞬间"更多', b:'我生活中对同性的"心动的瞬间"更多'},
-
-{sec:'kinsey', type:'scale',
- a:'我更容易对异性产生浪漫的、长久的那种感情', b:'我更容易对同性产生浪漫的、长久的那种感情'},
-
-{sec:'kinsey', type:'scale',
- a:'我比较不喜欢和异性有身体接触（如拥抱、牵手）', b:'我比较不喜欢和同性有身体接触（如拥抱、牵手）'},
-
-{sec:'kinsey', type:'scale',
- a:'我和异性的友谊更可能带一点暧昧色彩', b:'我和同性的友谊更可能带一点暧昧色彩'},
-
-{sec:'kinsey', type:'scale',
- a:'我从青春期开始就常对异性产生好感', b:'我从青春期开始就常对同性产生好感'},
-
-{sec:'kinsey', type:'scale',
- a:'我和异性在一起更放松、更能做自己', b:'我和同性在一起更放松、更能做自己'},
-
-{sec:'kinsey', type:'scale',
- a:'我现在/未来更想和异性建立稳定的亲密关系', b:'我现在/未来更想和同性建立稳定的亲密关系'},
-
 // ──────── 角色偏好 (15 题) ────────
-// 二元题: pole +1 → 倾向"主导/主动/1"，pole -1 → 倾向"被动/接受/0"
 {sec:'role', pole:+1, a:'在亲密关系里你更倾向于主动发起（聊天、约会、身体接触）',
                   b:'在亲密关系里你更倾向于等对方先发起'},
 {sec:'role', pole:-1, a:'你常被对方说"你怎么这么被动/害羞"',
@@ -391,32 +333,10 @@ const QUESTIONS = [
                   b:'你更愿意让自己发光，让对方当陪衬'},
 {sec:'role', pole:+1, a:'你倾向于在关系里"制定规则"或"定边界"',
                   b:'你倾向于在关系里"接受规则"或"被告知边界"'},
-
-// ──────── 关系风格 (10 题) ────────
-// 测: 安全感、独立性、表达力、冲突处理
-{sec:'rel', pole:+1, a:'在关系里你常担心"对方是不是还爱我"',
-                  b:'在关系里你常觉得"对方爱我"是稳定的事实'},
-{sec:'rel', pole:-1, a:'你需要大量独处时间来维持自我',
-                  b:'你和对方在一起的时间越多越满足'},
-{sec:'rel', pole:+1, a:'你倾向于把"心里的不舒服"藏起来不说',
-                  b:'你倾向于把"心里的不舒服"立即说出来'},
-{sec:'rel', pole:-1, a:'吵架时你倾向于先"消失/冷静"再说',
-                  b:'吵架时你倾向于"当场说完"再冷静'},
-{sec:'rel', pole:+1, a:'你常在关系里"过度付出"或"讨好"',
-                  b:'你常在关系里保持"平等交换"'},
-{sec:'rel', pole:-1, a:'你的"我"和"我们"界限很清楚',
-                  b:'你常分不清"我想要"还是"我们想要"'},
-{sec:'rel', pole:+1, a:'你害怕"被抛弃"或"对方变心"',
-                  b:'你对"关系变化"基本能平常心对待'},
-{sec:'rel', pole:-1, a:'你能接受"开放式关系"或"非一夫一妻"的安排',
-                  b:'你倾向于"一对一专属"的关系'},
-{sec:'rel', pole:+1, a:'你常通过"做事"来表达爱（修电脑、买礼物、做饭）',
-                  b:'你常通过"说话"来表达爱（说"我爱你"、赞美、倾听）'},
-{sec:'rel', pole:-1, a:'你倾向于"快速进入"一段关系',
-                  b:'你倾向于"慢慢确认"再进入一段关系'},
 ];
 </script>
 <script id="result-data">
+// (下面这一行已经存在，保持)
 // ==================== 群友动物园数据 ====================
 // 每种动物：原类型 + 猪化（emoji 组合 + 新名字）+ 群友语境
 
@@ -612,17 +532,17 @@ function renderIntro() {
   document.getElementById('app').innerHTML = `
     <div class="card">
       <h2>🐾 欢迎来到群友动物园</h2>
-      <p>通过 <b>105 道选择题</b>，我们会从 4 个维度画出你的"群友指纹"，然后在 <b>14 种群友小猪</b> 中找出最像你的那一只。</p>
+      <p>通过 <b>75 道选择题</b>，我们会从多个维度画出你的"群友指纹"，然后在 <b>14 种群友小猪</b> 中找出最像你的那一只。</p>
       <p>测完你会得到：</p>
       <ul>
         <li>🐷 <b>你的群友小猪</b>（名字 + emoji 组合）</li>
         <li>🐺 <b>群内定位</b>（团宠/气氛组/技术大佬/...）</li>
-        <li>💫 <b>群友属性面板</b>（4 维度可视化）</li>
-        <li>🦄 <b>最佳群搭子</b>（最匹配的另一种小猪）</li>
-        <li>💬 <b>群聊话术</b>（怎么跟你说话最有效）</li>
+        <li>💬 <b>跟你聊天的最佳话术</b>（怎么跟你说话最有效）</li>
+        <li>🎮 <b>群友能力值面板</b>（10 项能力属性条）</li>
+        <li>🐷 <b>最佳群搭子</b>（最匹配的另一种小猪）</li>
       </ul>
-      <p>预计 15-20 分钟。所有数据 <b>只在你的浏览器里</b>，<b>不会上传任何地方</b>。</p>
-      <p class="disclaimer">⚠️ <b>免责声明</b>：本测试仅供娱乐和自我探索，<b>不能</b>作为任何专业心理评估或性向诊断。性向是个人隐私，本测试结果不代表你的真实身份，也不应该被用来给自己或他人贴标签。</p>
+      <p>预计 10-15 分钟。所有数据 <b>只在你的浏览器里</b>，<b>不会上传任何地方</b>。</p>
+      <p class="disclaimer">⚠️ <b>免责声明</b>：本测试仅供娱乐和群友间的玩笑，<b>不能</b>作为任何专业心理评估。结果只反映你"那一刻的状态"，不是永久标签。</p>
       <div style="text-align:center;margin-top:24px">
         <button class="btn" onclick="begin()">我了解，开始</button>
       </div>
@@ -693,7 +613,7 @@ function next() {
   else { renderResult(); }
 }
 function score() {
-  // MBTI 计分
+  // MBTI 计分（dim 都是 -15 到 +15）
   const dims = { ei: 0, sn: 0, tf: 0, jp: 0 };
   QUESTIONS.forEach((q, i) => {
     if (q.sec !== 'mbti') return;
@@ -702,28 +622,16 @@ function score() {
     const sign = a === 'a' ? q.pole : -q.pole;
     dims[q.dim] += sign;
   });
-  const mbti = (dims.ei >= 0 ? 'E' : 'I') + (dims.sn >= 0 ? 'S' : 'N') +
-               (dims.tf >= 0 ? 'T' : 'F') + (dims.jp >= 0 ? 'J' : 'P');
   const mbti_pcts = {
     ei: Math.round((Math.abs(dims.ei) / 15) * 100),
     sn: Math.round((Math.abs(dims.sn) / 15) * 100),
     tf: Math.round((Math.abs(dims.tf) / 15) * 100),
     jp: Math.round((Math.abs(dims.jp) / 15) * 100),
   };
-  // Kinsey: 1-7 量表，1 = 完全异性恋 (0)，7 = 完全同性恋 (6)
-  // 找出题索引范围
-  let kinsey_total = 0, kinsey_n = 0;
-  QUESTIONS.forEach((q, i) => {
-    if (q.sec !== 'kinsey') return;
-    const a = state.answers[i];
-    if (a == null) return;
-    kinsey_total += a;
-    kinsey_n++;
-  });
-  // 1-7 → 0-6 映射
-  const kinsey_score = kinsey_n > 0 ? Math.round(((kinsey_total / kinsey_n) - 1) * (6 / 6)) : 3;
-  const kinsey_label = KINSEY_LABELS[Math.max(0, Math.min(6, kinsey_score))];
-  // Role: -15 到 +15
+  // 4 维字母（仍用于内部判定，但不在 UI 显示）
+  const mbti_letters = (dims.ei >= 0 ? 'E' : 'I') + (dims.sn >= 0 ? 'S' : 'N') +
+                       (dims.tf >= 0 ? 'T' : 'F') + (dims.jp >= 0 ? 'J' : 'P');
+  // 角色倾向（-1 到 +1）
   let role_total = 0, role_n = 0;
   QUESTIONS.forEach((q, i) => {
     if (q.sec !== 'role') return;
@@ -733,27 +641,40 @@ function score() {
     role_total += sign;
     role_n++;
   });
-  const role_score = role_total / role_n; // -1 到 +1
-  // 0..1 映射到 5 档
-  let role_idx;
-  if (role_score < -0.6) role_idx = 0;
-  else if (role_score < -0.2) role_idx = 1;
-  else if (role_score < 0.2) role_idx = 2;
-  else if (role_score < 0.6) role_idx = 3;
-  else role_idx = 4;
-  const role_label = ROLE_LABELS[role_idx];
-  // Rel: 也算一个综合指标
-  let rel_total = 0, rel_n = 0;
-  QUESTIONS.forEach((q, i) => {
-    if (q.sec !== 'rel') return;
-    const a = state.answers[i];
-    if (a == null) return;
-    const sign = a === 'a' ? q.pole : -q.pole;
-    rel_total += sign;
-    rel_n++;
-  });
-  const rel_score = rel_total / rel_n;
-  return { mbti, mbti_pcts, dims, kinsey_score, kinsey_label, role_idx, role_label, role_score, rel_score };
+  const role_score = role_n > 0 ? role_total / role_n : 0;
+
+  // ====== 10 维能力值（0-100）======
+  // 0/1 偏好（模糊化处理）
+  // role_score 范围 -1 到 +1，映射到 0/1 偏好度
+  // 0 分 → 中性，+1 → 1，-1 → 0
+  const role_preference = role_score.toFixed(2);  // -1.0 到 1.0
+  const role_label_num = role_score < -0.3 ? '0' : (role_score > 0.3 ? '1' : '浮动');
+
+  // 10 维能力值：每个 0-100，基础 50，每个 MBTI 维度贡献 ±X
+  // 定义每个能力值由哪些维度"加成"，每个维度贡献多少
+  // dims 范围 -15 到 +15
+  function abilityFromDims(formula) {
+    // formula: { ei: weight, sn: weight, tf: weight, jp: weight } 每个 weight 表示该维度 ±15 时贡献多少分
+    let score = 50;
+    score += (dims.ei / 15) * (formula.ei || 0) * 50;  // 归一化到 0-100 范围
+    score += (dims.sn / 15) * (formula.sn || 0) * 50;
+    score += (dims.tf / 15) * (formula.tf || 0) * 50;
+    score += (dims.jp / 15) * (formula.jp || 0) * 50;
+    return Math.max(0, Math.min(100, Math.round(score)));
+  }
+  const abilities = {
+    attack:    { name: '⚔️ 攻击性',   val: abilityFromDims({ ei: 0, sn: 0, tf: 0.4, jp: 0.4 }), desc: '直接、果断、爱挑战' },
+    empathy:   { name: '💗 共情力',   val: abilityFromDims({ ei: 0, sn: 0, tf: -0.5, jp: 0.3 }), desc: '体贴他人、感受情绪' },
+    leader:    { name: '👑 领袖力',   val: abilityFromDims({ ei: 0.4, sn: 0, tf: 0.3, jp: 0.3 }), desc: '决策、组织、带动气氛' },
+    feeler:    { name: '🌸 感性度',   val: abilityFromDims({ ei: 0, sn: 0, tf: -0.7, jp: 0 }), desc: '情感驱动、感受丰富' },
+    action:    { name: '⚡ 行动力',   val: abilityFromDims({ ei: 0.3, sn: 0, tf: 0.3, jp: -0.3 }), desc: '不纠结、说干就干' },
+    insight:   { name: '🔍 洞察力',   val: abilityFromDims({ ei: -0.2, sn: 0.5, tf: 0.2, jp: 0 }), desc: '看穿表象、思考深度' },
+    social:    { name: '🎉 社交力',   val: abilityFromDims({ ei: 0.8, sn: 0, tf: 0, jp: 0 }), desc: '交朋友、活跃气氛' },
+    freedom:   { name: '🦋 自由度',   val: abilityFromDims({ ei: 0, sn: 0.3, tf: 0, jp: -0.6 }), desc: '不被束缚、追求新鲜' },
+    mystery:   { name: '🌙 神秘感',   val: abilityFromDims({ ei: -0.5, sn: 0.3, tf: 0, jp: 0 }), desc: '神秘低调、深度连接' },
+    stability: { name: '🛡️ 稳定度',  val: abilityFromDims({ ei: 0, sn: 0.3, tf: 0, jp: 0.5 }), desc: '稳定可靠、按计划行事' },
+  };
+  return { dims, mbti_pcts, mbti_letters, role_score, role_preference, role_label_num, abilities };
 }
 function renderResult() {
   const s = score();
@@ -762,10 +683,17 @@ function renderResult() {
   const subtype = pickSubtype(s.role_score);
   const soulmateKey = pickSoulmate(s.dims);
   const soulmate = ANIMALS[soulmateKey];
-  const dimLetters = { ei: ['E', 'I'], sn: ['S', 'N'], tf: ['T', 'F'], jp: ['J', 'P'] };
-  const dimPole = { ei: '外向 E vs 内向 I', sn: '实感 S vs 直觉 N',
-                    tf: '思维 T vs 情感 F', jp: '判断 J vs 感知 P' };
   const isHidden = animal.hidden;
+
+  // 能力值排序（从高到低）
+  const abilityList = Object.values(s.abilities).sort((a, b) => b.val - a.val);
+  const top3 = abilityList.slice(0, 3);
+  const bot3 = abilityList.slice(-3).reverse();
+
+  // 0/1 偏好标签
+  const roleEmoji = s.role_label_num === '1' ? '👑' : s.role_label_num === '0' ? '🧸' : '🦄';
+  const roleDesc = s.role_label_num === '1' ? '主动·推进' : s.role_label_num === '0' ? '温柔·接收' : '灵活·看情况';
+
   document.getElementById('app').innerHTML = `
     <div class="share-card" ${isHidden ? 'style="background:linear-gradient(135deg,#7c3aed,#db2777,#dc2626)"' : ''}>
       <div style="font-size:14px;opacity:0.95">你的群友小猪是</div>
@@ -798,6 +726,41 @@ function renderResult() {
         ${animal.chatTips.map((t,i)=>`<li style="padding:8px 0;border-bottom:1px dashed var(--border)">· ${t}</li>`).join('')}
       </ul>
     </div>
+    <div class="card result-section" style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(236,72,153,0.04));border:1.5px solid rgba(124,58,237,0.2)">
+      <h3>🎮 你的群友能力值面板</h3>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px">基于 60 道性格题计算出的 10 项属性 · 满分 100</p>
+      <div class="ability-grid">
+        ${abilityList.map(a => {
+          const color = a.val >= 70 ? 'var(--good)' : a.val <= 30 ? 'var(--muted)' : 'var(--accent)';
+          return `<div class="ability-row">
+            <div class="ability-label">${a.name}</div>
+            <div class="ability-bar">
+              <div class="ability-fill" style="width:${a.val}%;background:linear-gradient(90deg,${color},${color}cc)"></div>
+            </div>
+            <div class="ability-val" style="color:${color}">${a.val}</div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(124,58,237,0.08);border-radius:8px;font-size:13px">
+        🏆 <b>TOP 3：</b>${top3.map(a => `${a.name} (${a.val})`).join(' · ')}<br>
+        🌑 <b>低分：</b>${bot3.map(a => `${a.name} (${a.val})`).join(' · ')}
+      </div>
+    </div>
+    <div class="card result-section">
+      <h3>🎯 你的群内偏好</h3>
+      <div style="display:flex;align-items:center;gap:20px;padding:10px 0">
+        <div style="font-size:56px">${roleEmoji}</div>
+        <div>
+          <div style="font-size:18px;font-weight:700">${roleDesc}</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px">
+            偏好度：<b>${s.role_preference}</b>（-1.0 = 0 · +1.0 = 1）<br>
+            ${s.role_label_num === '1' ? '你在群里更习惯当 1 —— 推进、安排、照顾、主动' :
+              s.role_label_num === '0' ? '你在群里更习惯当 0 —— 跟随、接受、被安排、温柔' :
+              '你两边都行 —— 看你对的人是谁'}
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="card result-section">
       <h3>🐷 你的最佳群搭子</h3>
       <div style="text-align:center;padding:12px 0">
@@ -807,29 +770,6 @@ function renderResult() {
       </div>
       <p>${soulmate.desc.split('。')[0]}。</p>
       <p style="margin-top:10px;color:var(--muted);font-size:13px">你俩在一起会很有化学反应。一个负责讲、一个负责笑，一个负责带节奏、一个负责兜底。</p>
-    </div>
-    <div class="card result-section">
-      <h3>📊 群友属性面板</h3>
-      ${['ei','sn','tf','jp'].map(d => {
-        const v = s.dims[d];
-        const pct = s.mbti_pcts[d];
-        const left = dimLetters[d][0], right = dimLetters[d][1];
-        const winner = v >= 0 ? left : right;
-        return `<div class="dim-bar">
-          <div class="dim-label"><span>${dimPole[d]}</span><b>${winner} (${pct}%)</b></div>
-          <div class="dim-track">
-            <div class="dim-left">${left}</div>
-            <div class="dim-right">${right}</div>
-            <div class="dim-marker" style="left:${50 + (v/15)*50}%"></div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-    <div class="card result-section">
-      <h3>🌈 性向谱系参考</h3>
-      <p>Kinsey 量表位置: <b>${s.kinsey_score}</b> / 6</p>
-      <p>分类: <b>${s.kinsey_label}</b></p>
-      <p class="disclaimer" style="margin-top:10px">性向是谱系而不是二分。任何位置都是合理的、自然的、属于你的。本测试只做参考，不下定义。</p>
     </div>
     <div class="card result-section">
       <h3>📤 分享 / 保存</h3>
@@ -847,8 +787,7 @@ function renderResult() {
         <b>⚠️ 重要提醒</b><br>
         · 本测试仅供娱乐和群友间的玩笑，<b>不能替代专业心理评估</b><br>
         · 群友小猪是简化标签，真实的你比任何一只小猪都更丰富<br>
-        · 性向是个人核心隐私，本测试结果<b>不会</b>也不应该被用来鉴定或评判任何人<br>
-        · 如果结果让你困惑、焦虑或想深入探索，建议找 <b>LGBTQ+ 友善</b> 的心理咨询师聊聊<br>
+        · 结果只反映你"那一刻的状态"，不是永久标签<br>
         · 所有数据<b>只存在你的浏览器</b>，关页面就消失
       </p>
     </div>`;
